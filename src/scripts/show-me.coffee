@@ -23,7 +23,6 @@ module.exports = (robot) ->
   	getForAll(mtnEnvironments, thisProject)
 
 # Display what build of the project is running in various environment
-
 getForAll = (env, project) ->
 	for e in env
 		do (e) ->
