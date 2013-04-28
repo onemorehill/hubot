@@ -2,7 +2,7 @@
 #	Displays what builds are running in which environment
 #
 # Commands:
-#	hubot show me <project> - Shows what version of a project is running in each environment.
+#	hubot show me <project> running - Shows what version of a project is running in each environment.
 # hubot show me <project> status - Shows the status for project for each environment.
 #
 # Currently running environments
