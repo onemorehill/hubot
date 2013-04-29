@@ -21,6 +21,8 @@ mtnEnvironments = [
 
 module.exports = (robot) ->
 
+	# TODO add ability to change projects
+	# Hardcoded to cruisebook now
   robot.respond /(show me) (cruisebook) (running|status)/i, (msg) ->
   	thisProject = new ThisProject(msg, "cruisebook")
   	condition = msg.match[3]
@@ -50,24 +52,31 @@ class ThisProject
 	constructor: (msg, name) ->
 		@msg = msg
 		@name = name
+		@url = "#{name}.mtnsatcloud.com"
+		@buildInfo = "/#{name}/status/manifest/build-version"
+		@statusInfo = "/#{name}/configuration"
 
 	is_running: (env) ->
 		msg = @msg
-		envUp = env.toUpperCase().trim()
+		url = env + "." + @url
+		urlUp = env.toUpperCase().trim() + "." + @url
+		buildInfo = @buildInfo
 		msg
-			.http("http://#{env}.cruisebook.mtnsatcloud.com/cruisebook/status/manifest/build-version")
+			.http("http://#{url}#{buildInfo}")
 			.get() (err,res, body) ->
-				msg.send "#{envUp} is running build: "  + body
+				msg.send "#{urlUp} is running build: "  + body
 
 	get_status: (env) ->
 		msg = @msg
-		envUp = env.toUpperCase().trim()
+		url = env + "." + @url
+		statusInfo = @statusInfo
+		urlUp = env.toUpperCase().trim() + "." + @url
 		msg
-			.http("http://#{env}.cruisebook.mtnsatcloud.com/cruisebook/configuration")
+			.http("http://#{url}#{statusInfo}")
 			.get() (err, res, body) ->
 				bodyData = JSON.parse(body)
 				systemStatus = bodyData.system_status.message.toUpperCase().trim()
 				clientVersion = bodyData.min_client_version
-				msg.send "#{envUp}\n====================\n" +
+				msg.send "#{urlUp}\n====================\n" +
 					"System status is: #{systemStatus}\n" +
 					"Minimum client version is: #{clientVersion}"
