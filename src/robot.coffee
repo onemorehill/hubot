@@ -80,16 +80,17 @@ class Robot
       @logger.warning "The regex in question was #{regex.toString()}"
 
     pattern = re.join('/')
+    name = @name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 
     if @alias
       alias = @alias.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
       newRegex = new RegExp(
-        "^[@]?(?:#{alias}[:,]?|#{@name}[:,]?)\\s*(?:#{pattern})"
+        "^[@]?(?:#{alias}[:,]?|#{name}[:,]?)\\s*(?:#{pattern})"
         modifiers
       )
     else
       newRegex = new RegExp(
-        "^[@]?#{@name}[:,]?\\s*(?:#{pattern})",
+        "^[@]?#{name}[:,]?\\s*(?:#{pattern})",
         modifiers
       )
 
@@ -415,5 +416,6 @@ class Robot
   # Returns a ScopedClient instance.
   http: (url) ->
     HttpClient.create(url)
+      .header('User-Agent', "Hubot/#{@version}")
 
 module.exports = Robot

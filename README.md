@@ -13,7 +13,7 @@ Make sure you have [node.js][nodejs] and [npm][npmjs] installed.
 You can install the `hubot` npm package globally and you will be able to run
 `hubot --create <PATH>` if you've setup npm packages to be in your `PATH`.
 
-    $ npm install -g hubot
+    $ npm install -g hubot coffee-script
     $ hubot --create <path>
 
 Then the directory at `<path>` contains a deployable hubot that you're able to
@@ -130,7 +130,7 @@ Hubot has first class support for specify roles which a user must have to run
 specific commands. If you wish you use this support you must set the the
 following environment variables:
 
-    * `HUBOT_AUTH_ADMINS` a comma separated list of admin IDs
+    * `HUBOT_AUTH_ADMIN` a comma separated list of admin IDs
 
 You can find the user IDs by running the `show users` command. The admin IDs
 specify which users can add and remove roles from users. Please note you can

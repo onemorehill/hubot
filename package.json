@@ -1,9 +1,7 @@
 {
   "name": "hubot",
-  "version": "2.4.8",
-
+  "version": "2.5.1",
   "author": "hubot",
-
   "keywords": [
     "github",
     "hubot",
@@ -15,7 +13,7 @@
 
   "licenses": [{
     "type": "MIT",
-    "url": "http://github.com/github/hubot/raw/master/LICENSE"
+    "url": "http://github.com/github/hubot/raw/master/LICENSE.md"
   }],
 
   "repository" : {
