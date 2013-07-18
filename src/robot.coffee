@@ -38,8 +38,8 @@ class Robot
   # Returns nothing.
   constructor: (adapterPath, adapter, httpd, name = 'Hubot') ->
     @name      = name
-    @brain     = new Brain
     @events    = new EventEmitter
+    @brain     = new Brain @
     @alias     = false
     @adapter   = null
     @Response  = Response
@@ -49,6 +49,7 @@ class Robot
 
     @parseVersion()
     @setupExpress() if httpd
+    @pingIntervalId = null
     @loadAdapter adapterPath, adapter
 
   # Public: Adds a Listener that attempts to match incoming messages based on
@@ -80,16 +81,17 @@ class Robot
       @logger.warning "The regex in question was #{regex.toString()}"
 
     pattern = re.join('/')
+    name = @name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 
     if @alias
       alias = @alias.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
       newRegex = new RegExp(
-        "^[@]?(?:#{alias}[:,]?|#{@name}[:,]?)\\s*(?:#{pattern})"
+        "^[@]?(?:#{alias}[:,]?|#{name}[:,]?)\\s*(?:#{pattern})"
         modifiers
       )
     else
       newRegex = new RegExp(
-        "^[@]?#{@name}[:,]?\\s*(?:#{pattern})",
+        "^[@]?#{name}[:,]?\\s*(?:#{pattern})",
         modifiers
       )
 
@@ -173,7 +175,7 @@ class Robot
     if ext is '.coffee' or ext is '.js'
       try
         require(full) @
-        @parseHelp "#{path}/#{file}"
+        @parseHelp Path.join(path, file)
       catch error
         @logger.error "Unable to load #{full}: #{error.stack}"
         process.exit(1)
@@ -239,7 +241,7 @@ class Robot
 
     if herokuUrl
       herokuUrl += '/' unless /\/$/.test herokuUrl
-      setInterval =>
+      @pingIntervalId = setInterval =>
         HttpClient.create("#{herokuUrl}hubot/ping").post() (err, res, body) =>
           @logger.info 'keep alive ping!'
       , 1200000
@@ -367,12 +369,14 @@ class Robot
   #
   # Returns nothing.
   run: ->
+    @emit "running"
     @adapter.run()
 
   # Public: Gracefully shutdown the robot process
   #
   # Returns nothing.
   shutdown: ->
+    clearInterval @pingIntervalId if @pingIntervalId?
     @adapter.close()
     @brain.close()
 
@@ -381,9 +385,8 @@ class Robot
   # Returns a String of the version number.
   parseVersion: ->
     package_path = Path.join __dirname, '..', 'package.json'
-    data = Fs.readFileSync package_path, 'utf8'
-    content = JSON.parse data
-    @version = content.version
+    pkg = require package_path
+    @version = pkg.version
 
   # Public: Creates a scoped http client with chainable methods for
   # modifying the request. This doesn't actually make a request though.
@@ -415,5 +418,6 @@ class Robot
   # Returns a ScopedClient instance.
   http: (url) ->
     HttpClient.create(url)
+      .header('User-Agent', "Hubot/#{@version}")
 
 module.exports = Robot

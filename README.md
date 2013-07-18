@@ -13,7 +13,7 @@ Make sure you have [node.js][nodejs] and [npm][npmjs] installed.
 You can install the `hubot` npm package globally and you will be able to run
 `hubot --create <PATH>` if you've setup npm packages to be in your `PATH`.
 
-    $ npm install -g hubot
+    $ npm install -g hubot coffee-script
     $ hubot --create <path>
 
 Then the directory at `<path>` contains a deployable hubot that you're able to
@@ -73,7 +73,9 @@ module.exports = (robot) ->
   path = Path.resolve __dirname, 'scripts'
   Fs.exists path, (exists) ->
     if exists
-      robot.loadFile path, file for file in Fs.readdirSync(path)
+      for file in Fs.readdirSync(path)
+        robot.loadFile path, file
+        robot.parseHelp Path.join(path, file)
 ```
 
 After you've built your `npm` package you can publish it to [npmjs][npmjs].
@@ -130,7 +132,7 @@ Hubot has first class support for specify roles which a user must have to run
 specific commands. If you wish you use this support you must set the the
 following environment variables:
 
-    * `HUBOT_AUTH_ADMINS` a comma separated list of admin IDs
+    * `HUBOT_AUTH_ADMIN` a comma separated list of admin IDs
 
 You can find the user IDs by running the `show users` command. The admin IDs
 specify which users can add and remove roles from users. Please note you can
@@ -152,7 +154,7 @@ You can remove a role from the user using the following command:
     hubot Joe Bloggs doesn't have developer role
     hubot John Doe does not have ops role
 
-### Viewing a Users Roles
+### Viewing a User's Roles
 
 You can view the roles a user has or see which users have the admin role with
 the following commands:
@@ -171,13 +173,13 @@ module.exports = (robot) ->
   robot.respond /have a beer/i, (msg) ->
     # Get number of beers had (coerced to a number).
     beersHad = robot.brain.get('totalBeers') * 1 or 0
-    
+
     if beersHad > 4
       msg.respond "I'm too drunk.."
-    
+
     else
       msg.respond 'Sure!'
-      
+
       robot.brain.set 'totalBeers', beersHad+1
       # Or robot.brain.set totalBeers: beersHad+1
 ```
